@@ -18,11 +18,14 @@ public class LivePreviewFrame extends JFrame implements WindowListener, Componen
     private JLabel imageLabel;
     private Image lastImage;
 
+    private static final int WIDTH = 800;
+    private static final int HEIGHT = 600;
+
     public LivePreviewFrame() {
         super();
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        setTitle("Image Detector Live Preview @ Opensouthcode 2017");
-        setSize(800, 600);
+        setTitle("Image Detector Live Preview");
+        setSize(WIDTH, HEIGHT);
         setResizable(true);
 
         addWindowListener(this);
@@ -32,7 +35,7 @@ public class LivePreviewFrame extends JFrame implements WindowListener, Componen
         content.addComponentListener(this);
 
         imageLabel = new JLabel();
-        imageLabel.setPreferredSize(new Dimension(800, 600));
+        imageLabel.setPreferredSize(new Dimension(WIDTH, HEIGHT));
         content.add(imageLabel, BorderLayout.CENTER);
 
         setContentPane(content);
@@ -57,17 +60,19 @@ public class LivePreviewFrame extends JFrame implements WindowListener, Componen
         SwingUtilities.invokeLater(() -> {
             lastImage = image;
             ImageIcon icon = new ImageIcon(image);
-            Image scaledImage;
 
-            double ratio = content.getWidth() / content.getHeight();
-            double imageRatio = icon.getIconWidth() / icon.getIconHeight();
-            if (ratio > imageRatio) {
-                scaledImage = image.getScaledInstance((int) (imageRatio * content.getHeight()), content.getHeight(), Image.SCALE_FAST);
-            } else {
-                scaledImage = image.getScaledInstance(content.getWidth(), (int) (content.getWidth() / imageRatio), Image.SCALE_FAST);
-            }
+            double widthMult = (double) WIDTH / icon.getIconWidth();
+            double heightMult = (double) HEIGHT / icon.getIconHeight();
+            double actualMult = Math.min(widthMult, heightMult);
+
+            Image scaledImage = image;
+            /*Image scaledImage = image.getScaledInstance(
+                (int) (icon.getIconWidth() * actualMult),
+                (int) (icon.getIconHeight() * actualMult),
+                Image.SCALE_FAST);*/
 
             imageLabel.setIcon(new ImageIcon(scaledImage));
+            repaint();
         });
     }
 
@@ -103,7 +108,6 @@ public class LivePreviewFrame extends JFrame implements WindowListener, Componen
 
     @Override
     public void componentResized(ComponentEvent e) {
-        paintImage(lastImage);
     }
 
     @Override
